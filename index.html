@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zac Duthie | ZAC_DUTHIE.md</title>
+    <meta
+      name="description"
+      content="A multi-purpose personal site rendered from one authoritative markdown file."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body data-theme="minimal" data-view="agent">
+    <div class="site-shell">
+      <header class="toolbar">
+        <div class="toolbar__controls">
+          <div class="control-cluster">
+            <span class="control-cluster__label">I am a(n)</span>
+
+            <div class="segmented-control" role="group" aria-label="View mode selector">
+              <button
+                class="segmented-control__button"
+                type="button"
+                data-view-target="agent"
+              >
+                AGENT
+              </button>
+              <button
+                class="segmented-control__button"
+                type="button"
+                data-view-target="human"
+              >
+                HUMAN
+              </button>
+            </div>
+
+            <div class="tooltip-anchor">
+              <button
+                class="info-dot"
+                type="button"
+                aria-label="Page welcome message"
+                aria-describedby="welcome-tooltip"
+              >
+                i
+              </button>
+              <span class="tooltip-bubble" id="welcome-tooltip" role="tooltip">
+                We live in exciting times!<br />
+                This website, however, is based on a simple Markdown file. Rendered for your
+                viewing pleasure.
+              </span>
+            </div>
+          </div>
+
+          <div class="control-cluster" id="theme-controls">
+            <span class="control-cluster__label">In the mood for</span>
+
+            <label class="select-pill" for="theme-select">
+              <span class="sr-only">Theme</span>
+              <select id="theme-select" name="theme"></select>
+            </label>
+          </div>
+        </div>
+
+        <button
+          class="icon-button"
+          type="button"
+          id="copy-markdown-button"
+          aria-label="Copy markdown"
+          title="Copy markdown"
+          data-copy-state="idle"
+        >
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path
+              d="M7 3.75A2.25 2.25 0 0 0 4.75 6v7A2.25 2.25 0 0 0 7 15.25h6A2.25 2.25 0 0 0 15.25 13V6A2.25 2.25 0 0 0 13 3.75H7Zm0 1.5h6c.414 0 .75.336.75.75v7a.75.75 0 0 1-.75.75H7a.75.75 0 0 1-.75-.75V6c0-.414.336-.75.75-.75Zm-2.25 2a.75.75 0 0 1 .75.75v6.25c0 .966.784 1.75 1.75 1.75h5.25a.75.75 0 0 1 0 1.5H7.25A3.25 3.25 0 0 1 4 14.25V8a.75.75 0 0 1 .75-.75Z"
+              fill="currentColor"
+            ></path>
+          </svg>
+          <span class="sr-only">Copy markdown</span>
+        </button>
+      </header>
+
+      <main class="site-main">
+        <article class="markdown-body" id="human-view" aria-live="polite" hidden></article>
+        <pre class="markdown-source" id="agent-view"><code></code></pre>
+      </main>
+    </div>
+  </body>
+</html>
