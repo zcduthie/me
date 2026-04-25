@@ -1,90 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zac Duthie | ZAC_DUTHIE.md</title>
-    <meta
-      name="description"
-      content="A multi-purpose personal site rendered from one authoritative markdown file."
-    />
-    <link rel="stylesheet" href="./styles.css" />
-    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script defer src="./app.js"></script>
-  </head>
-  <body data-theme="minimal" data-view="agent">
-    <div class="site-shell">
-      <header class="toolbar">
-        <div class="toolbar__controls">
-          <div class="control-cluster">
-            <span class="control-cluster__label">I am a(n)</span>
+<!doctype html>
+<html lang="en" data-view="agent" data-human-theme="editorial">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Zac Duthie — ZAC_DUTHIE.md</title>
+  <meta name="description" content="A personal site that's one Markdown file in two outfits — for humans and for agents." />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
 
-            <div class="segmented-control" role="group" aria-label="View mode selector">
-              <button
-                class="segmented-control__button"
-                type="button"
-                data-view-target="agent"
-              >
-                AGENT
-              </button>
-              <button
-                class="segmented-control__button"
-                type="button"
-                data-view-target="human"
-              >
-                HUMAN
-              </button>
-            </div>
+  <meta property="og:title" content="Zac Duthie — ZAC_DUTHIE.md" />
+  <meta property="og:description" content="A personal site that's one Markdown file in two outfits — for humans and for agents." />
+  <meta property="og:type" content="profile" />
+  <meta property="og:url" content="https://zcduthie.com/" />
 
-            <div class="tooltip-anchor">
-              <button
-                class="info-dot"
-                type="button"
-                aria-label="Page welcome message"
-                aria-describedby="welcome-tooltip"
-              >
-                i
-              </button>
-              <span class="tooltip-bubble" id="welcome-tooltip" role="tooltip">
-                We live in exciting times!<br />
-                This website, however, is based on a simple Markdown file. Rendered for your
-                viewing pleasure.
-              </span>
-            </div>
-          </div>
+  <link rel="alternate" type="text/markdown" href="./ZAC_DUTHIE.md" title="ZAC_DUTHIE.md (machine-readable)" />
+  <link rel="canonical" href="https://zcduthie.com/" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
 
-          <div class="control-cluster" id="theme-controls">
-            <span class="control-cluster__label">In the mood for</span>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Zac Duthie",
+    "url": "https://zcduthie.com",
+    "jobTitle": "Technical Lead",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Melbourne",
+      "addressCountry": "AU"
+    },
+    "sameAs": [
+      "https://github.com/zcduthie",
+      "https://www.linkedin.com/in/zachary-duthie-b0712873/"
+    ]
+  }
+  </script>
 
-            <label class="select-pill" for="theme-select">
-              <span class="sr-only">Theme</span>
-              <select id="theme-select" name="theme"></select>
-            </label>
-          </div>
-        </div>
+  <script>
+    (function () {
+      try {
+        var html = document.documentElement;
+        var ls = window.localStorage;
+        var validThemes = { editorial: 1, brutalist: 1, newspaper: 1, soft: 1, minimal: 1 };
+        var view = ls.getItem("zd:view");
+        if (view === "agent" || view === "human") html.dataset.view = view;
+        var humanTheme = ls.getItem("zd:humanTheme");
+        if (humanTheme && validThemes[humanTheme]) html.dataset.humanTheme = humanTheme;
+      } catch (e) {}
+    })();
+  </script>
 
-        <button
-          class="icon-button"
-          type="button"
-          id="copy-markdown-button"
-          aria-label="Copy markdown"
-          title="Copy markdown"
-          data-copy-state="idle"
-        >
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <path
-              d="M7 3.75A2.25 2.25 0 0 0 4.75 6v7A2.25 2.25 0 0 0 7 15.25h6A2.25 2.25 0 0 0 15.25 13V6A2.25 2.25 0 0 0 13 3.75H7Zm0 1.5h6c.414 0 .75.336.75.75v7a.75.75 0 0 1-.75.75H7a.75.75 0 0 1-.75-.75V6c0-.414.336-.75.75-.75Zm-2.25 2a.75.75 0 0 1 .75.75v6.25c0 .966.784 1.75 1.75 1.75h5.25a.75.75 0 0 1 0 1.5H7.25A3.25 3.25 0 0 1 4 14.25V8a.75.75 0 0 1 .75-.75Z"
-              fill="currentColor"
-            ></path>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="bar" role="banner">
+    <div class="bar__cluster">
+      <span class="bar__label">I am a(n)</span>
+      <nav class="bar__seg" role="tablist" aria-label="View mode">
+        <button role="tab" data-view="agent" aria-selected="true" id="tab-agent" aria-controls="panel-agent" tabindex="0" type="button">AGENT</button>
+        <button role="tab" data-view="human" aria-selected="false" id="tab-human" aria-controls="panel-human" tabindex="-1" type="button">HUMAN</button>
+      </nav>
+      <div class="info">
+        <button class="info__btn" type="button" id="info-btn" aria-label="About this site" aria-describedby="welcome-tooltip" aria-expanded="false">
+          <svg viewBox="0 0 20 20" aria-hidden="true" class="info__svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" fill="currentColor"/>
           </svg>
-          <span class="sr-only">Copy markdown</span>
         </button>
-      </header>
-
-      <main class="site-main">
-        <article class="markdown-body" id="human-view" aria-live="polite" hidden></article>
-        <pre class="markdown-source" id="agent-view"><code></code></pre>
-      </main>
+        <span class="info__tip" id="welcome-tooltip" role="tooltip">
+          <strong>We live in exciting times!</strong>
+          This website, however, is based on a simple Markdown file. Rendered for your viewing pleasure.
+        </span>
+      </div>
     </div>
-  </body>
+
+    <div class="bar__cluster bar__cluster--theme">
+      <span class="bar__label">In the mood for</span>
+      <select id="human-theme" aria-label="Visual style for HUMAN view"></select>
+    </div>
+
+    <div class="bar__actions">
+      <button class="icon" id="copy-btn" type="button" aria-label="Copy markdown" title="Copy markdown" data-copy-state="idle">
+        <svg viewBox="0 0 20 20" aria-hidden="true" class="icon__svg icon__copy">
+          <path d="M7 3.75A2.25 2.25 0 0 0 4.75 6v7A2.25 2.25 0 0 0 7 15.25h6A2.25 2.25 0 0 0 15.25 13V6A2.25 2.25 0 0 0 13 3.75H7Zm0 1.5h6c.414 0 .75.336.75.75v7a.75.75 0 0 1-.75.75H7a.75.75 0 0 1-.75-.75V6c0-.414.336-.75.75-.75Zm-2.25 2a.75.75 0 0 1 .75.75v6.25c0 .966.784 1.75 1.75 1.75h5.25a.75.75 0 0 1 0 1.5H7.25A3.25 3.25 0 0 1 4 14.25V8a.75.75 0 0 1 .75-.75Z" fill="currentColor"/>
+        </svg>
+        <svg viewBox="0 0 20 20" aria-hidden="true" class="icon__svg icon__check">
+          <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="content" class="content">
+    <noscript>
+      <p class="noscript">
+        This site renders <a href="./ZAC_DUTHIE.md">ZAC_DUTHIE.md</a> with JavaScript.
+        Without it, you can read the raw Markdown directly.
+      </p>
+    </noscript>
+
+    <section class="agent" data-view-panel="agent" id="panel-agent" role="tabpanel" aria-labelledby="tab-agent">
+      <pre class="agent__source"><code id="agent-source"></code></pre>
+    </section>
+
+    <article class="human" data-view-panel="human" id="panel-human" role="tabpanel" aria-labelledby="tab-human" hidden>
+      <div id="human-body"></div>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <p>
+      One Markdown file in two outfits —
+      <a href="./ZAC_DUTHIE.md">ZAC_DUTHIE.md</a> ·
+      <a href="https://github.com/zcduthie/me">source</a>
+    </p>
+  </footer>
+</body>
 </html>

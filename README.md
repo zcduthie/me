@@ -2,14 +2,14 @@
 
 A static personal site that renders a single authoritative markdown file, `ZAC_DUTHIE.md`, in two modes:
 
-- `HUMAN`: rendered HTML with switchable themes
-- `AGENT`: raw markdown
+- `AGENT`: raw markdown — what an LLM or scraper sees
+- `HUMAN`: rendered HTML, with five switchable visual styles (Editorial, Brutalist, Newspaper, Soft, Minimal)
+
+The site also ships `llms.txt` and `robots.txt` to be polite to both kinds of visitors.
 
 ## Local development
 
 Because the site fetches `ZAC_DUTHIE.md` at runtime, serve it over a small local web server instead of opening `index.html` directly as a file.
-
-Examples:
 
 ```bash
 python3 -m http.server 8000

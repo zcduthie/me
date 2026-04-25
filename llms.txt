@@ -1,0 +1,9 @@
+# Zac Duthie
+
+> Technical Lead in Melbourne. Health, IoT, AI.
+
+The authoritative content of this site is one Markdown file. Agents and humans are equally welcome.
+
+## Source
+
+- [ZAC_DUTHIE.md](./ZAC_DUTHIE.md): the resume / about page in raw Markdown

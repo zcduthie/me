@@ -1,241 +1,228 @@
-const THEMES = [
-  {
-    value: "minimal",
-    label: "Minimal",
-    description: "Quiet, plain, and readable.",
-  },
-  {
-    value: "mono",
-    label: "Mono",
-    description: "Slightly more technical and document-like.",
-  },
-  {
-    value: "editorial",
-    label: "Editorial",
-    description: "A softer long-form reading mode.",
-  },
-  {
-    value: "terminal",
-    label: "Terminal",
-    description: "A restrained terminal-flavored option.",
-  },
-  {
-    value: "brutalist",
-    label: "Brutalist",
-    description: "Bold, graphic, and hard-edged.",
-  },
-  {
-    value: "cv",
-    label: "CV",
-    description: "Structured and resume-like.",
-  },
-  {
-    value: "newspaper",
-    label: "Newspaper",
-    description: "An old-school editorial treatment.",
-  },
-  {
-    value: "soft",
-    label: "Soft",
-    description: "A gentle serif reading mode.",
-  },
+// me — app.js
+// Two views: AGENT (raw markdown) · HUMAN (rendered, themeable).
+
+const HUMAN_THEMES = [
+  { value: "editorial", label: "Editorial" },
+  { value: "brutalist", label: "Brutalist" },
+  { value: "newspaper", label: "Newspaper" },
+  { value: "soft", label: "Soft" },
+  { value: "minimal", label: "Minimal" },
 ];
 
-const STORAGE_KEYS = {
-  theme: "zac-duthie-theme",
-  view: "zac-duthie-view",
-};
-
-const DEFAULT_STATE = {
-  markdown: "",
-  theme: THEMES[0].value,
-  view: "agent",
-};
-
 const VALID_VIEWS = new Set(["agent", "human"]);
+const VALID_HUMAN_THEMES = new Set(HUMAN_THEMES.map((t) => t.value));
 
-marked.setOptions({
-  gfm: true,
-  breaks: false,
-});
+const KEYS = {
+  view: "zd:view",
+  humanTheme: "zd:humanTheme",
+};
 
-const elements = {
-  body: document.body,
-  humanView: document.getElementById("human-view"),
-  agentView: document.getElementById("agent-view"),
-  agentCode: document.querySelector("#agent-view code"),
-  copyButton: document.getElementById("copy-markdown-button"),
-  themeControls: document.getElementById("theme-controls"),
-  themeSelect: document.getElementById("theme-select"),
-  viewButtons: [...document.querySelectorAll("[data-view-target]")],
+const html = document.documentElement;
+
+const els = {
+  agentSource: document.getElementById("agent-source"),
+  humanBody: document.getElementById("human-body"),
+  themeSelect: document.getElementById("human-theme"),
+  copyBtn: document.getElementById("copy-btn"),
+  infoBtn: document.getElementById("info-btn"),
+  infoWrap: document.querySelector(".info"),
+  tabs: Array.from(document.querySelectorAll('[role="tab"][data-view]')),
 };
 
 const state = {
-  ...DEFAULT_STATE,
-  ...readInitialState(),
+  view: VALID_VIEWS.has(html.dataset.view) ? html.dataset.view : "agent",
+  humanTheme: VALID_HUMAN_THEMES.has(html.dataset.humanTheme) ? html.dataset.humanTheme : "editorial",
+  markdown: "",
 };
 
-let copyFeedbackTimer = null;
+let copyTimer = null;
 
-function themeFor(value) {
-  return THEMES.find((theme) => theme.value === value) ?? THEMES[0];
+// ---- Persistence helpers ------------------------------------
+
+function lsSet(key, val) {
+  try { localStorage.setItem(key, val); } catch (e) {}
 }
 
-function resolveTheme(value) {
-  return themeFor(value).value;
-}
+// ---- URL handling -------------------------------------------
 
-function resolveView(value) {
-  return VALID_VIEWS.has(value) ? value : DEFAULT_STATE.view;
-}
-
-function readInitialState() {
-  const params = new URLSearchParams(window.location.search);
-  const theme = params.get("theme") ?? localStorage.getItem(STORAGE_KEYS.theme);
-  const view = params.get("view") ?? localStorage.getItem(STORAGE_KEYS.view);
-
-  return {
-    theme: resolveTheme(theme),
-    view: resolveView(view),
-  };
-}
-
-function populateThemeSelect() {
-  const fragment = document.createDocumentFragment();
-
-  THEMES.forEach(({ value, label }) => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = label;
-    fragment.appendChild(option);
-  });
-
-  elements.themeSelect.appendChild(fragment);
+function readViewFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const v = params.get("view");
+  if (VALID_VIEWS.has(v)) state.view = v;
 }
 
 function syncUrl() {
-  const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set("theme", state.theme);
-  nextUrl.searchParams.set("view", state.view);
-  window.history.replaceState({}, "", nextUrl);
+  const url = new URL(location.href);
+  if (state.view === "agent") url.searchParams.delete("view");
+  else url.searchParams.set("view", state.view);
+  history.replaceState({}, "", url);
 }
 
-function syncUi() {
-  const activeTheme = themeFor(state.theme);
-  const isHumanView = state.view === "human";
+// ---- Theme select dropdown ----------------------------------
 
-  elements.body.dataset.theme = activeTheme.value;
-  elements.body.dataset.view = state.view;
-  elements.themeSelect.value = activeTheme.value;
-  elements.themeSelect.title = activeTheme.description;
-  elements.themeControls.setAttribute("aria-hidden", String(!isHumanView));
-  elements.humanView.hidden = !isHumanView;
-  elements.agentView.hidden = isHumanView;
+function populateThemeSelect() {
+  const frag = document.createDocumentFragment();
+  HUMAN_THEMES.forEach(({ value, label }) => {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    frag.appendChild(opt);
+  });
+  els.themeSelect.appendChild(frag);
+  els.themeSelect.value = state.humanTheme;
+}
 
-  elements.viewButtons.forEach((button) => {
-    const isActive = button.dataset.viewTarget === state.view;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
+// ---- State application --------------------------------------
+
+function applyState({ persist = true } = {}) {
+  html.dataset.view = state.view;
+  html.dataset.humanTheme = state.humanTheme;
+
+  els.tabs.forEach((btn) => {
+    const active = btn.dataset.view === state.view;
+    btn.setAttribute("aria-selected", String(active));
+    btn.tabIndex = active ? 0 : -1;
   });
 
-  localStorage.setItem(STORAGE_KEYS.theme, activeTheme.value);
-  localStorage.setItem(STORAGE_KEYS.view, state.view);
+  if (els.themeSelect.value !== state.humanTheme) {
+    els.themeSelect.value = state.humanTheme;
+  }
+
   syncUrl();
-}
 
-function renderMarkdown() {
-  elements.humanView.innerHTML = marked.parse(state.markdown);
-  elements.agentCode.textContent = state.markdown;
-}
-
-function renderError(message) {
-  elements.humanView.innerHTML = `
-    <h1>Missing markdown</h1>
-    <p>${message}</p>
-    <p>Make sure <code>ZAC_DUTHIE.md</code> exists in the site root.</p>
-  `;
-  elements.agentCode.textContent = message;
-}
-
-function setCopyButtonState(status, title) {
-  elements.copyButton.dataset.copyState = status;
-  elements.copyButton.title = title;
-  elements.copyButton.setAttribute("aria-label", title);
-
-  if (copyFeedbackTimer) {
-    window.clearTimeout(copyFeedbackTimer);
-    copyFeedbackTimer = null;
+  if (persist) {
+    lsSet(KEYS.view, state.view);
+    lsSet(KEYS.humanTheme, state.humanTheme);
   }
 
-  if (status === "idle") {
-    return;
-  }
+  document.querySelectorAll("[data-view-panel]").forEach((panel) => {
+    panel.hidden = panel.dataset.viewPanel !== state.view;
+  });
+}
 
-  copyFeedbackTimer = window.setTimeout(() => {
-    setCopyButtonState("idle", "Copy markdown");
-  }, 1400);
+// ---- Copy button --------------------------------------------
+
+function setCopyState(status, label) {
+  els.copyBtn.dataset.copyState = status;
+  els.copyBtn.setAttribute("aria-label", label);
+  els.copyBtn.title = label;
+  clearTimeout(copyTimer);
+  copyTimer = status === "idle"
+    ? null
+    : setTimeout(() => setCopyState("idle", "Copy markdown"), 1400);
 }
 
 async function copyMarkdown() {
-  if (!state.markdown) {
-    return;
-  }
-
+  if (!state.markdown) return;
   try {
     await navigator.clipboard.writeText(state.markdown);
-    setCopyButtonState("copied", "Copied markdown");
-  } catch (error) {
-    setCopyButtonState("failed", "Copy failed");
+    setCopyState("copied", "Copied");
+  } catch (e) {
+    setCopyState("failed", "Copy failed");
   }
+}
+
+// ---- Markdown rendering -------------------------------------
+
+function renderMarkdown() {
+  els.agentSource.textContent = state.markdown;
+  if (typeof marked !== "undefined") {
+    marked.setOptions({ gfm: true, breaks: true });
+    els.humanBody.innerHTML = marked.parse(state.markdown);
+  } else {
+    els.humanBody.innerHTML =
+      "<p>The Markdown renderer failed to load. Switching to the AGENT view, which shows the raw source.</p>";
+    if (state.view === "human") {
+      state.view = "agent";
+      applyState();
+    }
+  }
+}
+
+function renderError(msg) {
+  const isFile = location.protocol === "file:";
+  const hint = isFile
+    ? "<p>Try serving this directory locally first: <code>python3 -m http.server 8000</code>, then open <a href='http://localhost:8000'>http://localhost:8000</a>.</p>"
+    : "";
+  els.humanBody.innerHTML = `<h1>Could not load ZAC_DUTHIE.md</h1><p>${msg}</p>${hint}`;
+  const fileNote = isFile ? "\n\n# Tip: serve via `python3 -m http.server 8000`\n" : "";
+  els.agentSource.textContent = `# Could not load ZAC_DUTHIE.md\n\n${msg}${fileNote}`;
 }
 
 async function loadMarkdown() {
-  const response = await fetch("./ZAC_DUTHIE.md", { cache: "no-store" });
-
-  if (!response.ok) {
-    throw new Error(`Unable to load ZAC_DUTHIE.md (${response.status})`);
-  }
-
-  return response.text();
+  const res = await fetch("./ZAC_DUTHIE.md", { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
 }
 
-function bindEvents() {
-  elements.themeSelect.addEventListener("change", (event) => {
-    state.theme = resolveTheme(event.target.value);
-    syncUi();
-  });
+// ---- Events -------------------------------------------------
 
-  elements.viewButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.view = resolveView(button.dataset.viewTarget);
-      syncUi();
+function bindEvents() {
+  els.tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.view === state.view) return;
+      state.view = btn.dataset.view;
+      applyState();
+    });
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        const idx = els.tabs.indexOf(btn);
+        const next = els.tabs[(idx + (e.key === "ArrowRight" ? 1 : els.tabs.length - 1)) % els.tabs.length];
+        next.focus();
+        next.click();
+      }
     });
   });
 
-  elements.copyButton.addEventListener("click", () => {
-    copyMarkdown();
+  els.themeSelect.addEventListener("change", (e) => {
+    if (VALID_HUMAN_THEMES.has(e.target.value)) {
+      state.humanTheme = e.target.value;
+      applyState();
+    }
   });
+
+  els.copyBtn.addEventListener("click", copyMarkdown);
+
+  // Info tooltip — hover/focus drives it on desktop; tap toggles on touch.
+  if (els.infoBtn && els.infoWrap) {
+    els.infoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = els.infoWrap.classList.toggle("is-open");
+      els.infoBtn.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", (e) => {
+      if (!els.infoWrap.contains(e.target)) {
+        els.infoWrap.classList.remove("is-open");
+        els.infoBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && els.infoWrap.classList.contains("is-open")) {
+        els.infoWrap.classList.remove("is-open");
+        els.infoBtn.setAttribute("aria-expanded", "false");
+        els.infoBtn.focus();
+      }
+    });
+  }
 
   window.addEventListener("popstate", () => {
-    const params = new URLSearchParams(window.location.search);
-    state.theme = resolveTheme(params.get("theme"));
-    state.view = resolveView(params.get("view"));
-    syncUi();
+    readViewFromUrl();
+    applyState();
   });
 }
 
-async function init() {
-  populateThemeSelect();
-  bindEvents();
-  syncUi();
-  setCopyButtonState("idle", "Copy markdown");
+// ---- Bootstrap ---------------------------------------------
 
-  try {
-    state.markdown = await loadMarkdown();
+readViewFromUrl();
+populateThemeSelect();
+bindEvents();
+applyState({ persist: false });
+setCopyState("idle", "Copy markdown");
+
+loadMarkdown()
+  .then((md) => {
+    state.markdown = md;
     renderMarkdown();
-  } catch (error) {
-    renderError(error.message);
-  }
-}
-
-init();
+  })
+  .catch((err) => renderError(err.message));

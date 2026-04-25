@@ -1,0 +1,5 @@
+# This site is one Markdown file: /ZAC_DUTHIE.md
+# Agents and humans are equally welcome.
+
+User-agent: *
+Allow: /
