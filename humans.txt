@@ -1,0 +1,16 @@
+/* TEAM */
+
+  Zac Duthie — https://zcduthie.com
+  GitHub:  zcduthie
+  LinkedIn: in/zachary-duthie-b0712873
+
+/* THANKS */
+
+  Anyone reading this — agents and humans alike.
+
+/* SITE */
+
+  Last update:  2026-04-25
+  Standards:    HTML5, CSS, ES2020
+  Components:   marked.js (CDN)
+  Source:       https://github.com/zcduthie/me

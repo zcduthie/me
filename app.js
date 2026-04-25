@@ -1,6 +1,15 @@
 // me — app.js
 // Two views: AGENT (raw markdown) · HUMAN (rendered, themeable).
 
+console.log(
+  "%cme%c\n\nThis site is one Markdown file in two outfits.\n" +
+    "Source : https://github.com/zcduthie/me\n" +
+    "Resume : ./ZAC_DUTHIE.md\n" +
+    "Shortcuts: a → AGENT · h → HUMAN · c → copy",
+  "font: 700 14px/1 ui-monospace, monospace; padding: 2px 0;",
+  "font: 12px/1.5 ui-monospace, monospace; color: #6b6b72;"
+);
+
 const HUMAN_THEMES = [
   { value: "editorial", label: "Editorial" },
   { value: "brutalist", label: "Brutalist" },
@@ -209,6 +218,21 @@ function bindEvents() {
   window.addEventListener("popstate", () => {
     readViewFromUrl();
     applyState();
+  });
+
+  // Global keyboard shortcuts: a → AGENT, h → HUMAN, c → copy.
+  // Skipped when modifiers are held or focus is inside a form control.
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    if (e.key === "a") {
+      if (state.view !== "agent") { state.view = "agent"; applyState(); }
+    } else if (e.key === "h") {
+      if (state.view !== "human") { state.view = "human"; applyState(); }
+    } else if (e.key === "c") {
+      copyMarkdown();
+    }
   });
 }
 

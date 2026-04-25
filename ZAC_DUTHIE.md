@@ -84,13 +84,13 @@ Designs and builds secure, scalable systems in health, IoT, and AI.
 ## Education
 
 **Master of Information Technology (Cyber Security)**
-University of Melbourne — Graduated Top 1
+University of Melbourne — Graduated Top 1 (EWP Kernot)
 
 **Bachelor of Engineering (Electrical Engineering)**
 University of Melbourne — Graduated Top 3
 
 **Northcote High School**
-Graduated Top 1
+Dux - Graduated Top 1
 
 ---
 
